@@ -1,4 +1,4 @@
-configly-java-client
+conqueso-java-client
 ====================
 
-Connect your Java services to Configly
+Connect your Java services to Conqueso
