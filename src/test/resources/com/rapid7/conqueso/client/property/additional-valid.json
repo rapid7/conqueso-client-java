@@ -1,0 +1,27 @@
+[
+   {
+      "name":"additional1",
+      "type":"STRING",
+      "value":"bingo"
+   },
+   {
+      "name":"float1",
+      "type":"FLOAT",
+      "value":"3.14"
+   },
+   {
+      "name":"double1",
+      "type":"DOUBLE",
+      "value":"6.28"
+   },
+   {
+      "name":"boolean1",
+      "type":"BOOLEAN",
+      "value":"true"
+   },
+   {
+      "name":"long1",
+      "type":"LONG",
+      "value":"9876543210"
+   }  
+]

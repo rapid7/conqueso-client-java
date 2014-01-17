@@ -56,7 +56,7 @@ import com.rapid7.conqueso.client.PropertyType;
  * The values for the type field defined in the {@link PropertyType} enum. The value field provides the default value
  * for the property (but not necessarily the value returned by the Conqueso server).
  */
-public class JsonFilePropertyDefinitionsProvider extends AbstractFileBasedPropertyDefinitionsProvider<List<PropertyDefinition>> {
+public class JsonFilePropertyDefinitionsProvider extends AbstractUrlBasedPropertyDefinitionsProvider<List<PropertyDefinition>> {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonFilePropertyDefinitionsProvider.class);
     
@@ -73,23 +73,13 @@ public class JsonFilePropertyDefinitionsProvider extends AbstractFileBasedProper
     public JsonFilePropertyDefinitionsProvider(List<URL> fileUrls) {
         super(JSON_FILE_SYSTEM_PROPERTY, fileUrls);
     }
-   
-    @Override
-    protected Logger getLogger() {
-        return LOGGER;
-    }
 
     @Override
     protected List<PropertyDefinition> readModelFromReader(Reader reader) throws IOException {
         ObjectMapper parser = new ObjectMapper();
-        try {
-            List<PropertyDefinition> results = parser.readValue(reader, 
-                    new TypeReference<List<PropertyDefinition>>() { });
-            return results;
-        } catch (IOException e) {
-            LOGGER.error("Failed to parse PropertyDefinition list from JSON from file", e);
-            throw e;
-        }
+        List<PropertyDefinition> results = parser.readValue(reader, 
+                new TypeReference<List<PropertyDefinition>>() { });
+        return results;
     }
 
     @Override

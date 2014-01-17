@@ -26,8 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-
 import com.google.common.base.Charsets;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
@@ -36,9 +34,9 @@ import com.rapid7.conqueso.client.PropertyDefinition;
 import com.rapid7.conqueso.client.PropertyDefinitionsProvider;
 
 /**
- * 
+ * Base class for PropertyDefinitionsProvider implementations that read definitions from files specified by URLs.
  */
-public abstract class AbstractFileBasedPropertyDefinitionsProvider<M> implements PropertyDefinitionsProvider {
+public abstract class AbstractUrlBasedPropertyDefinitionsProvider<M> implements PropertyDefinitionsProvider {
     
     public static final char SYSTEM_PROPERTY_SEPARATOR = ',';
     private static final Splitter SYSTEM_PROPERTY_SPLITTER = Splitter.on(SYSTEM_PROPERTY_SEPARATOR)
@@ -48,21 +46,19 @@ public abstract class AbstractFileBasedPropertyDefinitionsProvider<M> implements
     
     private final ImmutableList<URL> fileUrls;
     
-    protected AbstractFileBasedPropertyDefinitionsProvider(String systemPropertyKey) {
+    protected AbstractUrlBasedPropertyDefinitionsProvider(String systemPropertyKey) {
         this(systemPropertyKey, Collections.<URL>emptyList());
     }
     
-    protected AbstractFileBasedPropertyDefinitionsProvider(String systemPropertyKey, URL fileUrl) {
+    protected AbstractUrlBasedPropertyDefinitionsProvider(String systemPropertyKey, URL fileUrl) {
         this(systemPropertyKey, Collections.singletonList(checkNotNull(fileUrl, "fileUrl")));
     }
     
-    protected AbstractFileBasedPropertyDefinitionsProvider(String systemPropertyKey, List<URL> fileUrls) {
+    protected AbstractUrlBasedPropertyDefinitionsProvider(String systemPropertyKey, List<URL> fileUrls) {
         this.systemPropertyKey = checkNotNull(systemPropertyKey, "systemPropertyKey");
         this.fileUrls = ImmutableList.copyOf(fileUrls);
     }
-    
-    protected abstract Logger getLogger();
-    
+        
     protected abstract M readModelFromReader(Reader reader) throws IOException;
     
     protected abstract void mergeProperties(M fileContents, Map<String, PropertyDefinition> targetPropertyDefinitionMap);
@@ -99,14 +95,13 @@ public abstract class AbstractFileBasedPropertyDefinitionsProvider<M> implements
             M properties = readModelFromReader(input);
             return properties;
         } catch (IOException e) {
-            getLogger().error("Failed to read properties from url: " + fileUrl);
-            return null;
+            throw new IllegalArgumentException("Failed to read properties from url: " + fileUrl, e);
         } finally {
             if (input != null) {
                 try {
                     input.close();
                 } catch (IOException e) {
-                    getLogger().error("Failed to close properties file url: " + fileUrl, e);
+                    throw new IllegalArgumentException("Failed to close properties file url: " + fileUrl, e);
                 }
             }
         }
@@ -123,8 +118,7 @@ public abstract class AbstractFileBasedPropertyDefinitionsProvider<M> implements
             try {
                 builder.add(new URL(propertyUrl));
             } catch (MalformedURLException e) {
-                getLogger().error("Invalid override properties file URL: " + propertyValue);
-                return null;
+                throw new IllegalArgumentException("Invalid override properties file URL: " + propertyValue);
             }
         }
         

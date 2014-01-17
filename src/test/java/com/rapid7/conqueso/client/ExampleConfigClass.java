@@ -15,6 +15,8 @@
  */
 package com.rapid7.conqueso.client;
 
+import java.util.Map;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -52,4 +54,15 @@ public class ExampleConfigClass {
             // Funky order to match hashing order
             ImmutableMap.of("k3","v3","k1","v1","k2","v2"));
 
+    
+    public static final ImmutableMap<String, PropertyDefinition> EXPECTED_PROPERTIES = 
+            ImmutableMap.<String, PropertyDefinition>builder()
+            .put("string1", new PropertyDefinition("string1", PropertyType.STRING, "foo"))
+            .put("string2", new PropertyDefinition("string2", PropertyType.STRING, "bar"))
+            .put("string3", new PropertyDefinition("string3", PropertyType.STRING, ""))
+            .put("int1", new PropertyDefinition("int1", PropertyType.INT, "42"))
+            .put("stringList1", new PropertyDefinition("stringList1", PropertyType.STRING_LIST, "foo,bar,baz"))
+            .put("stringSet1", new PropertyDefinition("stringSet1", PropertyType.STRING_SET, "baz,foo,bar"))
+            .put("stringMap1", new PropertyDefinition("stringMap1", PropertyType.STRING_MAP, "k3=v3,k1=v1,k2=v2"))
+            .build();
 }

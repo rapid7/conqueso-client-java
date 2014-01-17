@@ -15,7 +15,7 @@
  */
 package com.rapid7.conqueso.client.property;
 
-import static org.junit.Assert.*;
+import static com.rapid7.conqueso.client.ConquesoTestHelper.*;
 
 import java.util.Collections;
 import java.util.Map;
@@ -27,7 +27,7 @@ import com.rapid7.conqueso.client.ExampleConfigClass;
 import com.rapid7.conqueso.client.PropertyDefinition;
 import com.rapid7.conqueso.client.PropertyType;
 
-public class IntrospectorPropertyDefinitionProviderTest {
+public class IntrospectorPropertyDefinitionsProviderTest {
     
     @Test
     public void findsAllProperties() {
@@ -36,15 +36,7 @@ public class IntrospectorPropertyDefinitionProviderTest {
         Map<String, PropertyDefinition> results = Maps.newHashMap();
         introspector.addPropertyDefinitions(results);
         
-        assertEquals(ExampleConfigClass.class.getDeclaredFields().length, results.size());
-        assertContainsProperty("string1", PropertyType.STRING, "foo", results);
-        assertContainsProperty("string2", PropertyType.STRING, "bar", results);
-        assertContainsProperty("string3", PropertyType.STRING, "", results);
-        assertContainsProperty("int1", PropertyType.INT, "42", results);
-        
-        assertContainsProperty("stringList1", PropertyType.STRING_LIST, "foo,bar,baz", results);
-        assertContainsProperty("stringSet1",  PropertyType.STRING_SET, "baz,foo,bar", results);
-        assertContainsProperty("stringMap1", PropertyType.STRING_MAP, "k3=v3,k1=v1,k2=v2", results);
+        assertExampleConfigProperties(results);
     }
     
     @Test
@@ -58,10 +50,4 @@ public class IntrospectorPropertyDefinitionProviderTest {
         assertContainsProperty("stringSet1",  PropertyType.STRING_SET, "baz;;foo;;bar", results);
         assertContainsProperty("stringMap1", PropertyType.STRING_MAP, "k3=v3;;k1=v1;;k2=v2", results);
     }
-    
-    private static void assertContainsProperty(String propName, PropertyType propType, String defaultValue, 
-            Map<String, PropertyDefinition> results) {
-        assertEquals(new PropertyDefinition(propName, propType, defaultValue), results.get(propName));
-    }
-
 }

@@ -21,6 +21,9 @@ import java.util.Objects;
 
 import javax.annotation.Nullable;
 
+import org.codehaus.jackson.annotate.JsonCreator;
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import com.google.common.base.Strings;
 
 /**
@@ -33,7 +36,10 @@ public class PropertyDefinition {
     private final PropertyType type;
     private final String value;
     
-    public PropertyDefinition(String name, PropertyType type, @Nullable String value) {
+    @JsonCreator
+    public PropertyDefinition(@JsonProperty("name") String name, 
+            @JsonProperty("type") PropertyType type, 
+            @JsonProperty("value") @Nullable String value) {
         checkArgument(!Strings.isNullOrEmpty(name), "name");
         this.name = name;
         this.type = checkNotNull(type, "type");
@@ -76,6 +82,6 @@ public class PropertyDefinition {
 
     @Override
     public String toString() {
-        return "DynamicPropertyDefinition [name=" + name + ", type=" + type + ", value=" + value + "]";
+        return "PropertyDefinition [name=" + name + ", type=" + type + ", value=" + value + "]";
     }
 }

@@ -1,0 +1,12 @@
+[
+   {
+      "name":"string1",
+      "type":"STRING",
+      "value":"foobar"
+   },
+   {
+      "name":"stringList1",
+      "type":"STRING_LIST",
+      "value":"foo,bar,baz,bingo"
+   }
+]

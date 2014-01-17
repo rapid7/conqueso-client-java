@@ -40,7 +40,7 @@ import com.rapid7.conqueso.client.PropertyDefinition;
  * This properties file can only be used to override the default values of PropertyDefinitions discovered by
  * other means - it cannot be used to define additional property definitions.
  */
-public class PropertyFileOverridePropertyDefinitionsProvider extends AbstractFileBasedPropertyDefinitionsProvider<Properties> {
+public class PropertyFileOverridePropertyDefinitionsProvider extends AbstractUrlBasedPropertyDefinitionsProvider<Properties> {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(PropertyFileOverridePropertyDefinitionsProvider.class);
     
@@ -56,11 +56,6 @@ public class PropertyFileOverridePropertyDefinitionsProvider extends AbstractFil
     
     public PropertyFileOverridePropertyDefinitionsProvider(List<URL> fileUrls) {
         super(PROPERTIES_OVERRIDE_FILE_SYSTEM_PROPERTY, fileUrls);
-    }
-    
-    @Override
-    protected Logger getLogger() {
-        return LOGGER;
     }
 
     @Override
