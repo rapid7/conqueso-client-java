@@ -27,6 +27,7 @@ import com.netflix.config.DynamicStringMapProperty;
 import com.netflix.config.DynamicStringProperty;
 import com.netflix.config.DynamicStringSetProperty;
 
+@ConquesoConfig
 @SuppressWarnings("unused")
 public class ExampleConfigClass {
     

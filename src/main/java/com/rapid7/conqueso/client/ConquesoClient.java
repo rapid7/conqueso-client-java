@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.lang.annotation.Annotation;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -39,8 +40,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
+import com.google.common.base.Objects;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.netflix.config.DynamicListProperty;
 import com.netflix.config.sources.URLConfigurationSource;
@@ -48,6 +52,7 @@ import com.rapid7.conqueso.client.metadata.CompositeInstanceMetadataProvider;
 import com.rapid7.conqueso.client.metadata.CustomInstanceMetadataProvider;
 import com.rapid7.conqueso.client.metadata.EC2InstanceMetadataProvider;
 import com.rapid7.conqueso.client.metadata.SystemPropertiesInstanceMetadataProvider;
+import com.rapid7.conqueso.client.property.AnnotationScanPropertyDefinitionsProvider;
 import com.rapid7.conqueso.client.property.CompositePropertyDefinitionsProvider;
 import com.rapid7.conqueso.client.property.CustomPropertyDefinitionsProvider;
 import com.rapid7.conqueso.client.property.IntrospectorPropertyDefinitionsProvider;
@@ -55,19 +60,24 @@ import com.rapid7.conqueso.client.property.JsonFilePropertyDefinitionsProvider;
 import com.rapid7.conqueso.client.property.PropertyFileOverridePropertyDefinitionsProvider;
 
 /**
- * Class used to populate the Conqueso Server with information about a client application instance, as
- * well as provide methods to query the Conqueso Server. Instances are created using the {@link #initializer()}
+ * Class used to populate the Conqueso server with information about a client application instance, as
+ * well as provide methods to query the Conqueso server. Instances are created using the {@link #initializer()}
  * method.
  * <p>
  * On initialization of the ConquesoClient, metadata about the client application instance and the Archaius
- * properties used by the application are transmitted to the Conqueso Server. Methods to specify and customize
+ * properties used by the application are transmitted to the Conqueso server. Methods to specify and customize
  * the instance metadata and property definitions are available on the {@link Initializer} class.
  * <p>
  * The behavior of the ConquesoClient should provide reasonable defaults with minimal customization. A consumer
- * should minimally specify the classes containing their Archaius properties as static fields. For example:
+ * should minimally specify the classes containing their Archaius properties as static fields, or provide
+ * a package to scan for classes annotated with <code>@ConquesoConfig</code> For example:
  * <pre>
  * ConquesoClient.initializer()
  *     .withConfigurationClasses(AppConfig.class, DbConfig.class, QueueConfig.class)
+ *     .initialize();
+ * or
+ * ConquesoClient.initializer()
+ *     .withConfigurationScan("com.example.package")
  *     .initialize();
  * </pre>
  * 
@@ -80,7 +90,7 @@ public class ConquesoClient {
     private final URL conquesoUrl;
     
     /**
-     * Create the Initializer object used to establish a connection to the Conqueso Server.
+     * Create the Initializer object used to establish a connection to the Conqueso server.
      * @return the Initializer to use to configure the communication with Conqueso.
      */
     public static Initializer initializer() {
@@ -100,24 +110,34 @@ public class ConquesoClient {
         private PropertyDefinitionsProvider propertyDefinitionsProvider = null;
         
         private List<Class<?>> configurationClasses;
+        
+        private List<String> scanPackages = null;
+        private Class<? extends Annotation> markerAnnotation = null;
+        
         private String collectionDelimiter;
         
         /**
-         * Initialize the Conqueso Client. This will establish a connection to the Server to send
+         * Initialize the Conqueso Client. This will establish a connection to the server to send
          * the instance's metadata and property definitions.
          * 
          * @return the initialized ConquesoClient
-         * @throws IOException if there was an issue communicating with the Conqueso Server
+         * @throws ConquesoCommunicationException if there was an issue communicating with the Conqueso server
          */
-        public ConquesoClient initialize() throws IOException {
-            URL url = getConquesoUrl();            
+        public ConquesoClient initialize() {            
+            URL url = getConquesoUrl();       
             
             Map<String, String> instanceMetadata = getInstanceMetadata();
             
             Set<PropertyDefinition> propertyDefs = getPropertyDefinitions();
             
             ConquesoClient client = new ConquesoClient(url);
-            client.postInitialInstanceInfo(instanceMetadata, propertyDefs);
+            
+            // Handle not running against a Conqueso server
+            if (url.getProtocol().equals("http") || url.getProtocol().equals("https")) {
+                client.postInitialInstanceInfo(instanceMetadata, propertyDefs);   
+            } else {
+                LOGGER.warn("Skipping posting of instance info to " + url);
+            }
             
             return client;
         }
@@ -130,7 +150,7 @@ public class ConquesoClient {
          * @return the initializer for method chaining
          */
         public Initializer withConquesoUrl(String conquesoUrl) {
-            checkState(conquesoUrl == null, "Conqueso URL already configured");
+            checkState(this.conquesoUrl == null, "Conqueso URL already configured");
             this.conquesoUrl = checkNotNull(conquesoUrl, "conquesoUrl");
             return this;
         }
@@ -145,7 +165,7 @@ public class ConquesoClient {
          * @return the initializer for method chaining
          */
         public Initializer withInstanceData(InstanceMetadataProvider instanceMetadataProvider) {
-            checkState(instanceMetadataProvider == null, "Instance data already configured");
+            checkState(this.instanceMetadataProvider == null, "Instance data already configured");
             this.instanceMetadataProvider = checkNotNull(instanceMetadataProvider, "instanceMetadataProvider");
             return this;
         }
@@ -180,7 +200,7 @@ public class ConquesoClient {
          * @return the initializer for method chaining
          */
         public Initializer withPropertyDefinitions(PropertyDefinitionsProvider propertyDefinitionsProvider) {
-            checkState(propertyDefinitionsProvider == null, "Property definitions provider already configured");
+            checkState(this.propertyDefinitionsProvider == null, "Property definitions provider already configured");
             this.propertyDefinitionsProvider = propertyDefinitionsProvider;
             return this;
         }
@@ -191,8 +211,39 @@ public class ConquesoClient {
          * @return the initializer for method chaining
          */
         public Initializer withNoProperties() {
-            checkState(configurationClasses == null, "Configuration classes already configured");
+            checkState(this.configurationClasses == null, "Configuration classes already configured");
             return withPropertyDefinitions(new CustomPropertyDefinitionsProvider());
+        }
+        
+        /**
+         * Configure the scanning for configuration classes with the {@link ConquesoConfig} annotation.
+         * The classpath will be scanned for classes declared under the specified scanPackages, marked with the
+         * ConquesoConfig annotation. The found classes will then be scanned to discover the static Archaius dynamic
+         * property fields, and the definition of those properties will be transmitted to the Conqueso server. 
+         * The definitions will be used to set up the properties to return to Archaius, the type of fields, and 
+         * the default values.
+         * @param scanPackages the Java packages to scan for configuration classes
+         */
+        public Initializer withConfigurationScan(String...scanPackages) {
+            return withConfigurationScan(ConquesoConfig.class, scanPackages);
+        }
+        
+        /**
+         * Configure the scanning for configuration classes with a marker annotation.
+         * The classpath will be scanned for classes declared under the specified scanPackages, marked with the
+         * given markerAnnotation. The found classes will then be scanned to discover the static Archaius dynamic
+         * property fields, and the definition of those properties will be transmitted to the Conqueso server. 
+         * The definitions will be used to set up the properties to return to Archaius, the type of fields, and 
+         * the default values.
+         * @param markerAnnotation the annotation used to mark classes containing Archaius properties
+         * @param scanPackages the Java packages to scan for configuration classes
+         */
+        public Initializer withConfigurationScan(Class<? extends Annotation> markerAnnotation, String...scanPackages) {
+            checkState(this.markerAnnotation == null, "Configuration scan already configured");
+            checkArgument(scanPackages.length > 0, "No scan packages specified");
+            this.markerAnnotation = checkNotNull(markerAnnotation, "markerAnnotation");
+            this.scanPackages = ImmutableList.copyOf(scanPackages);
+            return this;
         }
         
         /**
@@ -205,7 +256,7 @@ public class ConquesoClient {
          * @return the initializer for method chaining
          */
         public Initializer withConfigurationClasses(Class<?>...configurationClasses) {
-            checkState(configurationClasses == null, "Configuration classes already configured");
+            checkState(this.configurationClasses == null, "Configuration classes already configured");
             checkArgument(configurationClasses.length > 0, "No configuration classes specified");
             this.configurationClasses = Arrays.asList(configurationClasses);
             return this;
@@ -219,7 +270,7 @@ public class ConquesoClient {
          * @return the initializer for method chaining
          */
         public Initializer withCollectionPropertyDelimiter(String collectionDelimiter) {
-            checkState(collectionDelimiter == null, "Collection property delimiter already configured");
+            checkState(this.collectionDelimiter == null, "Collection property delimiter already configured");
             checkArgument(!Strings.isNullOrEmpty(collectionDelimiter), "collectionDelimiter");
             this.collectionDelimiter = collectionDelimiter;
             return this;
@@ -244,16 +295,26 @@ public class ConquesoClient {
          * @return the default implementation of InstanceMetadataProvider
          */
         public PropertyDefinitionsProvider createDefaultPropertyDefinitionsProvider() {
-            IntrospectorPropertyDefinitionsProvider introspector = 
-                    (collectionDelimiter == null ? new IntrospectorPropertyDefinitionsProvider(configurationClasses) :
-                new IntrospectorPropertyDefinitionsProvider(configurationClasses, collectionDelimiter));
-                    
-            return new CompositePropertyDefinitionsProvider(introspector,
-                    new JsonFilePropertyDefinitionsProvider(),
-                    new PropertyFileOverridePropertyDefinitionsProvider());
+            List<PropertyDefinitionsProvider> providers = Lists.newArrayList();
+            
+            String delimiter = Objects.firstNonNull(collectionDelimiter, DynamicListProperty.DEFAULT_DELIMITER);
+            
+            if (markerAnnotation != null) {
+                providers.add(new AnnotationScanPropertyDefinitionsProvider(markerAnnotation, scanPackages, 
+                        delimiter));                
+            }
+            
+            if (configurationClasses != null) {
+                providers.add(new IntrospectorPropertyDefinitionsProvider(configurationClasses, delimiter));
+            }
+            
+            providers.add(new JsonFilePropertyDefinitionsProvider());
+            providers.add(new PropertyFileOverridePropertyDefinitionsProvider());
+
+            return new CompositePropertyDefinitionsProvider(providers);
         }
         
-        private URL getConquesoUrl() throws MalformedURLException {
+        private URL getConquesoUrl() {
             if (conquesoUrl == null) {
                 String additionalUrls = System.getProperty(URLConfigurationSource.CONFIG_URL);
                 if (Strings.isNullOrEmpty(additionalUrls)) {
@@ -264,7 +325,11 @@ public class ConquesoClient {
                 String[] splitUrls = additionalUrls.split(",");
                 withConquesoUrl(splitUrls[0]);
             }
-            return new URL(conquesoUrl);
+            try {
+                return new URL(conquesoUrl);
+            } catch (MalformedURLException e) {
+                throw new ConquesoCommunicationException("Bad URL for Conqueso Server", e);
+            }
         }
         
         private Map<String, String> getInstanceMetadata() {
@@ -277,8 +342,8 @@ public class ConquesoClient {
         
         private Set<PropertyDefinition> getPropertyDefinitions() {
             if (propertyDefinitionsProvider == null) {
-                if (configurationClasses == null) {
-                    LOGGER.warn("No configuration classes have been configured");
+                if (markerAnnotation == null && configurationClasses == null) {
+                    LOGGER.warn("No configuration classes or configuration scan have been configured");
                     configurationClasses = Collections.emptyList();
                 }
                 propertyDefinitionsProvider = createDefaultPropertyDefinitionsProvider();
@@ -319,11 +384,15 @@ public class ConquesoClient {
     }
     
     private void postInitialInstanceInfo(Map<String, String> instanceMetadata,
-            Set<PropertyDefinition> combinedPropertyDefinitions) throws IOException {
+            Set<PropertyDefinition> combinedPropertyDefinitions) {
         
-        String json = toJson(instanceMetadata, combinedPropertyDefinitions);
-        String message = encode(json);
-        post(message);
+        try {
+            String json = toJson(instanceMetadata, combinedPropertyDefinitions);
+            String message = encode(json);
+            post(message);
+        } catch (Exception e) {
+            throw new ConquesoCommunicationException("Failed to send instance info to Conqueso Server", e);
+        }
     }
         
     @VisibleForTesting

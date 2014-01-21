@@ -110,7 +110,7 @@ public abstract class AbstractUrlBasedPropertyDefinitionsProvider<M> implements 
     private List<URL> getTargetUrlsFromSystemProperty() {
         String propertyValue = System.getProperty(systemPropertyKey);
         if (Strings.isNullOrEmpty(propertyValue)) {
-            return null;
+            return Collections.emptyList();
         }
         
         ImmutableList.Builder<URL> builder = ImmutableList.builder();
