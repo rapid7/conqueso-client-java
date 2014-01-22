@@ -20,13 +20,11 @@ import static com.google.common.base.Preconditions.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -46,6 +44,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.net.HttpHeaders;
 import com.netflix.config.DynamicListProperty;
 import com.netflix.config.sources.URLConfigurationSource;
 import com.rapid7.conqueso.client.metadata.CompositeInstanceMetadataProvider;
@@ -388,8 +387,9 @@ public class ConquesoClient {
         
         try {
             String json = toJson(instanceMetadata, combinedPropertyDefinitions);
-            String message = encode(json);
-            post(message);
+            LOGGER.debug("Transmitting instance info to Conqueso Server:");
+            LOGGER.debug(json);
+            post(json);
         } catch (Exception e) {
             throw new ConquesoCommunicationException("Failed to send instance info to Conqueso Server", e);
         }
@@ -404,8 +404,10 @@ public class ConquesoClient {
     }
     
     private void post(String message) throws IOException {
-        URLConnection connection = conquesoUrl.openConnection();
+        HttpURLConnection connection = (HttpURLConnection)conquesoUrl.openConnection();
         connection.setDoOutput(true);
+        connection.setRequestProperty(HttpHeaders.CONTENT_TYPE, "application/json");
+        connection.setRequestMethod("POST");
         
         Writer writer = null;
         try {
@@ -417,14 +419,6 @@ public class ConquesoClient {
             }
             // Need to call this to send data
             connection.getInputStream().close();
-        }
-    }
-    
-    private static String encode(String message) {
-        try {
-            return URLEncoder.encode(message, Charsets.UTF_8.name());
-        } catch( UnsupportedEncodingException uee ) {
-            throw new IllegalStateException("Default encoding not found", uee);
         }
     }
     
