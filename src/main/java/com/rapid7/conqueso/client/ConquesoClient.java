@@ -133,9 +133,10 @@ public class ConquesoClient {
             
             // Handle not running against a Conqueso server
             if (url.getProtocol().equals("http") || url.getProtocol().equals("https")) {
+                LOGGER.info("Initializing connection with Conqueso Server: " + url.toExternalForm());
                 client.postInitialInstanceInfo(instanceMetadata, propertyDefs);   
             } else {
-                LOGGER.warn("Skipping posting of instance info to " + url);
+                LOGGER.warn("Skipping posting of instance info to " + url.toExternalForm());
             }
             
             return client;
@@ -361,18 +362,25 @@ public class ConquesoClient {
      * Retrieve the latest set of service properties from the Conqueso Server, returned
      * as a Java Properties object.
      * @return the latest Properties value
-     * @throws IOException if there's an error communicating with the Conqueso Server.
+     * @throws ConquesoCommunicationException if there's an error communicating with the Conqueso Server.
      */
-    public Properties getLatestProperties() throws IOException {
+    public Properties getLatestProperties() {
         InputStream input = null;
         try {
             input = conquesoUrl.openStream();
             Properties properties = new Properties();
             properties.load(input);
             return properties;
+        } catch (IOException e) {
+            throw new ConquesoCommunicationException("Failed to retrieve latest properties from Conqueso server", e);
         } finally {
             if (input != null) {
-                input.close();
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    throw new ConquesoCommunicationException(
+                            "Failed to retrieve latest properties from Conqueso server", e);
+                }
             }
         }
     }
