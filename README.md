@@ -1,4 +1,4 @@
-conqueso-java-client
+conqueso-client-java
 ====================
 
 A library to connect your Java applications to [Conqueso](https://github.com/rapid7/conqueso). Everything's better... Conqueso.
@@ -6,16 +6,16 @@ A library to connect your Java applications to [Conqueso](https://github.com/rap
 Conqueso is a central repository for managing dynamic property values for the [Archaius](https://github.com/Netflix/archaius) library. 
 
 ### Motivation
-The conqueso-java-client serves three purposes:
+The conqueso-client-java serves three purposes:
 
 1. Gather and transmit instance metadata about your application to the Conqueso server
 2. Gather and transmit info about what Archaius dynamic properties are used by your application to the Conqueso server
 3. Provide an API to query the Conqueso server for property values and instance metadata
 
-### Getting conqueso-java-client
-You can download the conqueso-java-client binaries from Maven Central.
+### Getting conqueso-client-java
+You can download the conqueso-client-java binaries from Maven Central.
 
-To add conqueso-java-client to your Maven project, use the following
+To add conqueso-client-java to your Maven project, use the following
 ```xml
 <dependency>
   <groupId>com.rapid7.conqueso</groupId>
@@ -232,4 +232,4 @@ Properties props = client.getLatestProperties();
 ```
 
 ### Logging
-conqueso-java-client uses SLF4J (http://www.slf4j.org/) for logging. SLF4J is a facade over logging that allows you to plug in any (or no) logging framework. See the SLF4J website for details.
+conqueso-client-java uses SLF4J (http://www.slf4j.org/) for logging. SLF4J is a facade over logging that allows you to plug in any (or no) logging framework. See the SLF4J website for details.
