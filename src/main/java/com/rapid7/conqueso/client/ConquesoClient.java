@@ -277,7 +277,7 @@ public class ConquesoClient {
         }
         
         /**
-         * Create the default {@link InstanceMedataProvider} to use for a ConquesoClient. This provider
+         * Create the default {@link InstanceMetadataProvider} to use for a ConquesoClient. This provider
          * can be composed with additional custom providers using the {@link CompositeInstanceMetadataProvider} class,
          * then configured into the client with the {@link #withInstanceData(InstanceMetadataProvider)} method.
          * @return the default implementation of InstanceMetadataProvider
