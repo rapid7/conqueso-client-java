@@ -1,7 +1,7 @@
 conqueso-java-client
 ====================
 
-A library to connect your Java applications to Conqueso. Everything's better... Conqueso.
+A library to connect your Java applications to [Conqueso](https://github.com/rapid7/conqueso). Everything's better... Conqueso.
 
 Conqueso is a central repository for managing dynamic property values for the [Archaius](https://github.com/Netflix/archaius) library. 
 
