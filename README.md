@@ -209,7 +209,7 @@ The format of the JSON file is as follows:
     }
 ]
 ```
-The values for the type field are defined in the [PropertyType](https://github.com/stevewillard/conqueso-client-java/blob/master/src/main/java/com/rapid7/conqueso/client/PropertyType.java) enum in the conqueso-client-java artifact. The value field provides the default value for the property (but not necessarily the value returned by the Conqueso server if modified).
+The values for the type field are defined in the [PropertyType](https://github.com/rapid7/conqueso-client-java/blob/master/src/main/java/com/rapid7/conqueso/client/PropertyType.java) enum in the conqueso-client-java artifact. The value field provides the default value for the property (but not necessarily the value returned by the Conqueso server if modified).
 
 ##### Property Default Value Overrides
 The default values of properties are read from the object declarations when introspecting configuration classes and from the JSON file definition as described above. These default values can also be overridden using external Java Properties files, specified by a system property:

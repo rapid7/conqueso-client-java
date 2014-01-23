@@ -8,7 +8,7 @@
   <packaging>jar</packaging>
 
   <name>conqueso-client-java</name>
-  <url>https://github.com/stevewillard/conqueso-client-java</url>
+  <url>https://github.com/rapid7/conqueso-client-java</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
