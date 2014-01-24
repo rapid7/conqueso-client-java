@@ -20,7 +20,7 @@ To add conqueso-java-client to your Maven project, use the following
 <dependency>
   <groupId>com.rapid7.conqueso</groupId>
   <artifactId>conqueso-client-java</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.5.0-SNAPSHOT</version>
 </dependency>
 ```
 
