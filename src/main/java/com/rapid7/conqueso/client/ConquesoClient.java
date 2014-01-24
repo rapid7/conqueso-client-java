@@ -372,7 +372,8 @@ public class ConquesoClient {
             properties.load(input);
             return properties;
         } catch (IOException e) {
-            throw new ConquesoCommunicationException("Failed to retrieve latest properties from Conqueso server", e);
+            throw new ConquesoCommunicationException("Failed to retrieve latest properties from Conqueso server: " +
+                    conquesoUrl.toExternalForm(), e);
         } finally {
             if (input != null) {
                 try {
@@ -399,7 +400,8 @@ public class ConquesoClient {
             LOGGER.debug(json);
             post(json);
         } catch (Exception e) {
-            throw new ConquesoCommunicationException("Failed to send instance info to Conqueso Server", e);
+            throw new ConquesoCommunicationException("Failed to send instance info to Conqueso Server: " +
+                    conquesoUrl.toExternalForm(), e);
         }
     }
         

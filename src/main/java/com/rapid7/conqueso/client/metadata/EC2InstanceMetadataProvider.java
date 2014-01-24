@@ -144,7 +144,8 @@ public class EC2InstanceMetadataProvider implements InstanceMetadataProvider {
     
     private String readResponse(HttpURLConnection connection) throws IOException {
         if (connection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
-            throw new IllegalArgumentException("The requested metadata is not found at " + connection.getURL());
+            LOGGER.warn("The requested metadata is not found at " + connection.getURL());
+            return null;
         }
         
         InputStreamReader reader = new InputStreamReader(connection.getInputStream(), Charsets.UTF_8);
