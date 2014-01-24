@@ -55,13 +55,16 @@ public class EC2InstanceMetadataProviderTest {
         assertFalse(result.containsKey("ami-id"));
     }
     
-    @Test(expected=IllegalArgumentException.class)
-    public void throwsNotFoundResult() {
+    @Test
+    public void skipsNotFoundResult() {
         Map<String, String> response = createDefaultResponse();
         // Remove the response for ami-id
         response.remove(EC2InstanceMetadataProvider.EC2_METADATA_ROOT + "/ami-id");
         
-        getInstanceMetadata(response);
+        Map<String, String> result = getInstanceMetadata(response);
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+        assertFalse(result.containsKey("ami-id"));
     }
 
     @Test
