@@ -13,14 +13,14 @@ The conqueso-client-java serves three purposes:
 3. Provide an API to query the Conqueso server for property values and instance metadata
 
 ### Getting conqueso-client-java
-You can download the conqueso-client-java binaries from Maven Central.
+You can download the conqueso-client-java binaries from [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cconqueso).
 
 To add conqueso-client-java to your Maven project, use the following
 ```xml
 <dependency>
   <groupId>com.rapid7.conqueso</groupId>
   <artifactId>conqueso-client-java</artifactId>
-  <version>0.5.0-SNAPSHOT</version>
+  <version>0.5.0</version>
 </dependency>
 ```
 
