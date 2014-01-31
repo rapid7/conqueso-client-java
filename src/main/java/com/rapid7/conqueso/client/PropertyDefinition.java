@@ -17,13 +17,12 @@ package com.rapid7.conqueso.client;
 
 import static com.google.common.base.Preconditions.*;
 
-import java.util.Objects;
-
 import javax.annotation.Nullable;
 
 import org.codehaus.jackson.annotate.JsonCreator;
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 
 /**
@@ -60,7 +59,7 @@ public class PropertyDefinition {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, type, value);
+        return Objects.hashCode(name, type, value);
     }
 
     @Override
@@ -75,9 +74,9 @@ public class PropertyDefinition {
             return false;
         }
         PropertyDefinition other = (PropertyDefinition) obj;
-        return Objects.equals(name, other.name) &&
-                Objects.equals(type, other.type) &&
-                Objects.equals(value, other.value);
+        return Objects.equal(name, other.name) &&
+                Objects.equal(type, other.type) &&
+                Objects.equal(value, other.value);
     }
 
     @Override
