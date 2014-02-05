@@ -19,20 +19,26 @@ import static com.google.common.base.Preconditions.*;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +50,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.io.CharStreams;
 import com.google.common.net.HttpHeaders;
 import com.netflix.config.DynamicListProperty;
 import com.netflix.config.sources.URLConfigurationSource;
@@ -86,7 +93,20 @@ public class ConquesoClient {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(ConquesoClient.class);
     
+    public static final String CONQUESO_SERVER_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"; 
+        
     private final URL conquesoUrl;
+    private final ObjectMapper objectMapper;
+    
+    /**
+     * Utility method to parse the date values returned from the Conqueso server
+     * @param conquesoDateValue date value from the Conqueso server
+     * @return the value as a Java Date
+     * @throws ParseException if there's an issue parsing the value
+     */
+    public static Date parseConquesoDate(String conquesoDateValue) throws ParseException {
+        return new SimpleDateFormat(CONQUESO_SERVER_DATE_FORMAT).parse(conquesoDateValue);
+    }
     
     /**
      * Create the Initializer object used to establish a connection to the Conqueso server.
@@ -386,8 +406,60 @@ public class ConquesoClient {
         }
     }
     
-    private ConquesoClient(URL conquesoUrl) {
+    /**
+     * Retrieve the latest value for the given property key from the Conqueso Server, returned
+     * as a String.
+     * @param key the property key to look up
+     * @return the latest property value
+     * @throws ConquesoCommunicationException if there's an error communicating with the Conqueso Server.
+     */
+    public String getPropertyValue(String key) {
+        checkArgument(!Strings.isNullOrEmpty(key), "key");
+        
+        String errorMessage = String.format("Failed to retrieve %s property from Conqueso server: %s",
+                key, conquesoUrl.toExternalForm());
+        
+        return readStringFromUrl(key, errorMessage);
+    }
+    
+    /**
+     * Retrieve information about the roles from the Conqueso Server.
+     * @return the role information
+     * @throws ConquesoCommunicationException if there's an error communicating with the Conqueso Server.
+     */
+    public ImmutableList<RoleInfo> getRoles() {
+        TypeReference<List<RoleInfo>> typeReference = new TypeReference<List<RoleInfo>>() { };
+        
+        String errorMessage = String.format("Failed to retrieve roles from Conqueso server: %s",
+                conquesoUrl.toExternalForm());
+        
+        return ImmutableList.copyOf(readObjectFromJson(typeReference, "/api/roles", errorMessage));
+    }
+    
+    /**
+     * Retrieve information about instances of a particular role from the Conqueso Server.
+     * @param roleName the role to retrieve
+     * @return the information about the instances of the given role
+     * @throws ConquesoCommunicationException if there's an error communicating with the Conqueso Server.
+     */
+    public ImmutableList<InstanceInfo> getInstances(String roleName) {
+        checkArgument(!Strings.isNullOrEmpty(roleName), "roleName");
+        
+        TypeReference<List<InstanceInfo>> typeReference = new TypeReference<List<InstanceInfo>>() { };
+        
+        String relativeUrl = String.format("/api/roles/%s/instances", roleName);
+        
+        String errorMessage = String.format("Failed to retrieve %s instances from Conqueso server: %s",
+                roleName, conquesoUrl.toExternalForm());
+        
+        return ImmutableList.copyOf(readObjectFromJson(typeReference, relativeUrl, errorMessage));
+    }
+    
+    @VisibleForTesting
+    ConquesoClient(URL conquesoUrl) {
         this.conquesoUrl = conquesoUrl;
+        this.objectMapper = new ObjectMapper();
+        this.objectMapper.disable(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES);
         // Prevent construction outside of Initializer
     }
     
@@ -408,9 +480,8 @@ public class ConquesoClient {
     @VisibleForTesting
     String toJson(Map<String, String> instanceMetadata,
             Set<PropertyDefinition> combinedPropertyDefinitions) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
         InitialInstanceInfo info = new InitialInstanceInfo(instanceMetadata, combinedPropertyDefinitions);
-        return mapper.writeValueAsString(info);
+        return objectMapper.writeValueAsString(info);
     }
     
     private void post(String message) throws IOException {
@@ -429,6 +500,34 @@ public class ConquesoClient {
             }
             // Need to call this to send data
             connection.getInputStream().close();
+        }
+    }
+    
+    @VisibleForTesting
+    String readStringFromUrl(String relativeUrl, String errorMessage) {
+        InputStream input = null;
+        try {
+            URL propertyUrl = new URL(conquesoUrl, relativeUrl);
+            input = propertyUrl.openStream();
+            return CharStreams.toString(new InputStreamReader(input, Charsets.UTF_8));
+        } catch (IOException e) {
+            throw new ConquesoCommunicationException(errorMessage, e);
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    throw new ConquesoCommunicationException(errorMessage, e);
+                }
+            }
+        }
+    }
+    
+    private <T> T readObjectFromJson(TypeReference<T> objectType, String relativeUrl, String errorMessage) {
+        try {
+            return objectMapper.readValue(readStringFromUrl(relativeUrl, errorMessage), objectType);
+        } catch (IOException e) {
+            throw new ConquesoCommunicationException(errorMessage, e);
         }
     }
     
