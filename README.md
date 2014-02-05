@@ -11,6 +11,9 @@ The conqueso-client-java serves three purposes:
 2. Gather and transmit info about what Archaius dynamic properties are used by your application to the Conqueso server
 3. Provide an API to query the Conqueso server for property values and instance metadata
 
+### License
+The Conqueso server and the conqueso-client-java library are licensed under the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0.html).
+
 ### Getting conqueso-client-java
 You can download the conqueso-client-java binaries from [Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cconqueso).
 
