@@ -61,8 +61,8 @@ public class ConquesoClientTest {
         String response = readFileAsString("roles-response.json");
         
         List<RoleInfo> expected = ImmutableList.of(
-                new RoleInfo("analytics-service", "2014-01-22T18:22:28.000Z", "2014-02-22T18:22:28.000Z", 5),
-                new RoleInfo("test-framework-server", "2014-02-03T14:54:19.000Z", "2014-03-03T14:54:19.000Z", 1));
+                new RoleInfo("analytics-service", 5),
+                new RoleInfo("test-framework-server", 1));
         
         ConquesoClient client = createClientReturningString("/api/roles", response);
         ImmutableList<RoleInfo> results = client.getRoles();

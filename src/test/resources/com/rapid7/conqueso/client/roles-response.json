@@ -1,14 +1,10 @@
 [
   {
     "name": "analytics-service",
-    "createdAt": "2014-01-22T18:22:28.000Z",
-    "updatedAt": "2014-02-22T18:22:28.000Z",
-    "instanceCount": 5
+    "instances": 5
   },
   {
     "name": "test-framework-server",
-    "createdAt": "2014-02-03T14:54:19.000Z",
-    "updatedAt": "2014-03-03T14:54:19.000Z",
-    "instanceCount": 1
+    "instances": 1
   }
 ]

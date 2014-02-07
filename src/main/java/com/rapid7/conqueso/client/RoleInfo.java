@@ -26,46 +26,22 @@ import com.google.common.base.Objects;
 public class RoleInfo {
     
     private final String name;
-    private final String createdAt;
-    private final String updatedAt;
-    private final int instanceCount;
+    private final int instances;
     
     @JsonCreator
     public RoleInfo(@JsonProperty("name") String name, 
-            @JsonProperty("createdAt") String createdAt, 
-            @JsonProperty("updatedAt") String updatedAt, 
-            @JsonProperty("instanceCount") int instanceCount) {
+            @JsonProperty("instances") int instances) {
         
         this.name = name;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.instanceCount = instanceCount;
+        this.instances = instances;
     }
 
     public String getName() {
         return name;
     }
 
-    /**
-     * Retrieve create time as a String. This String
-     * can be parsed using {@link ConquesoClient#parseConquesoDate(String)}.
-     * @return the create time value
-     */
-    public String getCreatedAt() {
-        return createdAt;
-    }
-
-    /**
-     * Retrieve updated time as a String. This String
-     * can be parsed using {@link ConquesoClient#parseConquesoDate(String)}.
-     * @return the updated time value
-     */
-    public String getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public int getInstanceCount() {
-        return instanceCount;
+    public int getInstances() {
+        return instances;
     }
     
     @Override
@@ -75,7 +51,7 @@ public class RoleInfo {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(name, createdAt, updatedAt, instanceCount);
+        return Objects.hashCode(name, instances);
     }
 
     @Override
@@ -88,8 +64,6 @@ public class RoleInfo {
             return false;
         RoleInfo other = (RoleInfo) obj;
         return Objects.equal(name, other.name) &&
-                Objects.equal(createdAt, other.createdAt) &&
-                Objects.equal(updatedAt, other.updatedAt) &&
-                Objects.equal(instanceCount, other.instanceCount);
+                Objects.equal(instances, other.instances);
     }
 }
