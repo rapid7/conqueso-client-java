@@ -229,6 +229,88 @@ ConquesoClient client = ConquesoClient.initializer()
    
 Properties props = client.getLatestProperties();
 ```
+##### Querying an Individual Property
+An individual property value can be queried for your application's role. All values retrieved by this method are returned as Strings.
+```java
+ConquesoClient client = ConquesoClient.initializer()
+   .withConfigurationClasses(AppConfig.class)
+   .initialize();
+   
+String myValue = client.getPropertyValue("myKey");
+```
+##### Querying Roles
+Information about all the roles registered with the Conqueso server can be queried.
+```java
+ConquesoClient client = ConquesoClient.initializer()
+   .withConfigurationClasses(AppConfig.class)
+   .initialize();
+   
+List<RoleInfo> roles = client.getRoles();
+for (RoleInfo role : roles) {
+   System.out.println("Role: " + role.getName());
+   System.out.println("Instance count: " + role.getInstances());
+}
+```
+##### Querying Instances
+Information about the active instances registered with the Conqueso server can be queried.
+```java
+ConquesoClient client = ConquesoClient.initializer()
+   .withConfigurationClasses(AppConfig.class)
+   .initialize();
+   
+List<InstanceInfo> instances = client.getInstances();
+for (InstanceInfo instance : instances) {
+   System.out.println("Instance role: " + instance.getRole());
+   System.out.println("Instance IP: " + instance.getIpAddress());
+   System.out.println("Metadata: " + instance.getMetadata());
+}
+```
+##### Querying Instances of a Role
+Information about the active instances of roles registered with the Conqueso server can be queried.
+```java
+ConquesoClient client = ConquesoClient.initializer()
+   .withConfigurationClasses(AppConfig.class)
+   .initialize();
+   
+List<InstanceInfo> instances = client.getRoleInstances("reporting-app");
+for (InstanceInfo instance : instances) {
+   System.out.println("Instance IP: " + instance.getIpAddress());
+   System.out.println("Metadata: " + instance.getMetadata());
+}
+```
+##### Querying Instances With Metadata
+Information about active instances with metadata matching a series of key/value pairs can be queried.
+```java
+ConquesoClient client = ConquesoClient.initializer()
+   .withConfigurationClasses(AppConfig.class)
+   .initialize();
+   
+List<InstanceInfo> instances = client.getInstancesWithMetadata("availabilty-zone", "us-east-1c", 
+   "instance-type", "m1.small");
+for (InstanceInfo instance : instances) {
+   System.out.println("Instance role: " + instance.getRole());
+   System.out.println("Instance IP: " + instance.getIpAddress());
+   System.out.println("Metadata: " + instance.getMetadata());
+}
+```
+The above code will display the information about all instances with instance metadata containing 
+availability-zone=us-east-1c and instance-type=m1.small.
+
+##### Querying Instances of a Role With Metadata
+```java
+ConquesoClient client = ConquesoClient.initializer()
+   .withConfigurationClasses(AppConfig.class)
+   .initialize();
+   
+List<InstanceInfo> instances = client.getRoleInstancesWithMetadata("reporting-app", "availabilty-zone", "us-east-1c", 
+   "instance-type", "m1.small");
+for (InstanceInfo instance : instances) {
+   System.out.println("Instance IP: " + instance.getIpAddress());
+   System.out.println("Metadata: " + instance.getMetadata());
+}
+```
+The above code will display the information about reporting-app instances with instance metadata containing 
+availability-zone=us-east-1c and instance-type=m1.small.
 
 ### Logging
 conqueso-client-java uses SLF4J (http://www.slf4j.org/) for logging. SLF4J is a facade over logging that allows you to plug in any (or no) logging framework. See the SLF4J website for details.

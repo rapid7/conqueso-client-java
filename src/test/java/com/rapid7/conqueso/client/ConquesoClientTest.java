@@ -41,7 +41,7 @@ public class ConquesoClientTest {
         String key = "foo";
         String value = "bar";
         
-        ConquesoClient client = createClientReturningString(key, value);
+        ConquesoClient client = createClientReturningString("properties/" + key, value);
         String result = client.getPropertyValue(key);
         
         assertEquals(value, result);
@@ -74,20 +74,78 @@ public class ConquesoClientTest {
     public void getInstances() throws IOException {
         String response = readFileAsString("instances-response.json");
         
-        List<InstanceInfo> expected = ImmutableList.of(
-                new InstanceInfo("10.1.100.78", "analytics-service", 60000, false, 
-                        "2014-02-05T17:05:39.000Z", "2014-02-05T18:46:48.000Z",
-                        ImmutableMap.of("ami-id", "ami-133cb31d", "availability-zone", "us-east-1d", 
-                                "local-ipv4", "10.1.100.78")),
-                new InstanceInfo("10.1.100.79", "analytics-service", 50000, true, 
-                        "2014-03-05T17:05:39.000Z", "2014-03-05T18:46:48.000Z",
-                        ImmutableMap.of("ami-id", "ami-133cb31d", "availability-zone", "us-east-1d", 
-                                "local-ipv4", "10.1.100.79"))
-                );
+        List<InstanceInfo> expected = getExpectedInstances();
+        
+        ConquesoClient client = createClientReturningString("/api/instances", response);
+        
+        ImmutableList<InstanceInfo> result = client.getInstances();
+        assertEquals(expected, result);
+    }
+        
+    @Test
+    public void getInstancesWithMetadata() throws IOException {
+        String response = readFileAsString("instances-response.json");
+        
+        List<InstanceInfo> expected = getExpectedInstances();
+        
+        ConquesoClient client = createClientReturningString(
+                "/api/instances?availability-zone=us-east-1d&instance-type=m1.small", response);
+        
+        ImmutableList<InstanceInfo> result = client.getInstancesWithMetadata(
+                "availability-zone", "us-east-1d", "instance-type", "m1.small");
+        assertEquals(expected, result);
+    }
+    
+    @Test
+    public void getInstancesWithMetadataMap() throws IOException {
+        String response = readFileAsString("instances-response.json");
+        
+        List<InstanceInfo> expected = getExpectedInstances();
+        
+        ConquesoClient client = createClientReturningString("/api/instances?availability-zone=us-east-1d", response);
+        
+        ImmutableList<InstanceInfo> result = client.getInstancesWithMetadata(
+                ImmutableMap.of("availability-zone", "us-east-1d"));
+        assertEquals(expected, result);
+    }
+    
+    @Test
+    public void getRoleInstances() throws IOException {
+        String response = readFileAsString("instances-response.json");
+        
+        List<InstanceInfo> expected = getExpectedInstances();
         
         ConquesoClient client = createClientReturningString("/api/roles/analytics-service/instances", response);
         
-        ImmutableList<InstanceInfo> result = client.getInstances("analytics-service");
+        ImmutableList<InstanceInfo> result = client.getRoleInstances("analytics-service");
+        assertEquals(expected, result);
+    }
+    
+    @Test
+    public void getRoleInstancesWithMetadata() throws IOException {
+        String response = readFileAsString("instances-response.json");
+        
+        List<InstanceInfo> expected = getExpectedInstances();
+        
+        ConquesoClient client = createClientReturningString(
+                "/api/roles/analytics-service/instances?availability-zone=us-east-1d&instance-type=m1.small", response);
+        
+        ImmutableList<InstanceInfo> result = client.getRoleInstancesWithMetadata("analytics-service", 
+                "availability-zone", "us-east-1d", "instance-type", "m1.small");
+        assertEquals(expected, result);
+    }
+    
+    @Test
+    public void getRoleInstancesWithMetadataMap() throws IOException {
+        String response = readFileAsString("instances-response.json");
+        
+        List<InstanceInfo> expected = getExpectedInstances();
+        
+        ConquesoClient client = createClientReturningString(
+                "/api/roles/analytics-service/instances?availability-zone=us-east-1d", response);
+        
+        ImmutableList<InstanceInfo> result = client.getRoleInstancesWithMetadata("analytics-service",
+                ImmutableMap.of("availability-zone", "us-east-1d"));
         assertEquals(expected, result);
     }
     
@@ -95,6 +153,22 @@ public class ConquesoClientTest {
     public void parseConquesoDate() throws ParseException {
         assertEquals(createDate(2014,1,5,17,5,39), ConquesoClient.parseConquesoDate("2014-02-05T17:05:39.000Z"));
         assertEquals(createDate(2015,0,31,12,5,39), ConquesoClient.parseConquesoDate("2015-01-31T12:05:39.000Z"));
+    }
+    
+    /**
+     * Matches the contents of instances-response.json
+     */
+    private List<InstanceInfo> getExpectedInstances() {
+        return ImmutableList.of(
+                new InstanceInfo("10.1.100.78", "analytics-service", 60000, false, 
+                        "2014-02-05T17:05:39.000Z", "2014-02-05T18:46:48.000Z",
+                        ImmutableMap.of("ami-id", "ami-133cb31d", "availability-zone", "us-east-1d", 
+                                "local-ipv4", "10.1.100.78", "instance-type", "m1.small")),
+                new InstanceInfo("10.1.100.79", "analytics-service", 50000, true, 
+                        "2014-03-05T17:05:39.000Z", "2014-03-05T18:46:48.000Z",
+                        ImmutableMap.of("ami-id", "ami-133cb31d", "availability-zone", "us-east-1d", 
+                                "local-ipv4", "10.1.100.79", "instance-type", "m1.small"))
+                );
     }
     
     private Date createDate(int year, int month, int date, int hourOfDay, int minute, int second) {

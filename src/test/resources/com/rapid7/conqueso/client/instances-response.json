@@ -9,7 +9,8 @@
     "metadata": {
       "ami-id": "ami-133cb31d",
       "availability-zone": "us-east-1d",
-      "local-ipv4": "10.1.100.78"
+      "local-ipv4": "10.1.100.78",
+      "instance-type": "m1.small"
     }
   },
   {
@@ -22,7 +23,8 @@
     "metadata": {
       "ami-id" : "ami-133cb31d",
       "availability-zone" : "us-east-1d",
-      "local-ipv4": "10.1.100.79"
+      "local-ipv4": "10.1.100.79",
+      "instance-type": "m1.small"
     }
   }
 ]

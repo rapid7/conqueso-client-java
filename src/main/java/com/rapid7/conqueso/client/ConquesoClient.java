@@ -21,11 +21,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -47,6 +49,7 @@ import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -419,7 +422,7 @@ public class ConquesoClient {
         String errorMessage = String.format("Failed to retrieve %s property from Conqueso server: %s",
                 key, conquesoUrl.toExternalForm());
         
-        return readStringFromUrl(key, errorMessage);
+        return readStringFromUrl("properties/" + key, errorMessage);
     }
     
     /**
@@ -437,22 +440,171 @@ public class ConquesoClient {
     }
     
     /**
+     * Retrieve information about all online instances from the Conqueso Server.
+     * @return the information about the instances
+     * @throws ConquesoCommunicationException if there's an error communicating with the Conqueso Server.
+     */
+    public ImmutableList<InstanceInfo> getInstances() {
+        return getInstancesWithMetadataImpl(Collections.<String, String>emptyMap());
+    }
+    
+    /**
+     * Retrieve information about all online instances matching the given metadata query from the Conqueso Server.
+     * The metadata query is expressed as key/value pairs. For example, calling this method like this:
+     * <p>
+     * <code>
+     * conquesoClient.getInstancesWithMetadata("availability-zone", "us-east-1c", "instance-type", "m1.small");
+     * </code>
+     * </p>
+     * will return all instances with metadata that matches availability-zone=us-east-1c and instance-type=m1.small.
+     * 
+     * @param metadataQueryPairs the key/value pairs representing a query for instances matching the metadata
+     * @return the information about the matching instances
+     * @throws ConquesoCommunicationException if there's an error communicating with the Conqueso Server.
+     */
+    public ImmutableList<InstanceInfo> getInstancesWithMetadata(String...metadataQueryPairs) {
+        checkArgument(metadataQueryPairs.length > 0, "No metadata query pairs specified");
+        checkArgument(metadataQueryPairs.length % 2 == 0, "Odd number of arguments passed as metadata query pairs");
+                
+        return getInstancesWithMetadata(toMap(metadataQueryPairs));
+    }
+    
+    /**
+     * Retrieve information about all online instances matching the given metadata query from the Conqueso Server.
+     * The metadata query is expressed as key/value pairs in the provided map. For example, calling this method like 
+     * this:
+     * <p>
+     * <code>
+     * conquesoClient.getInstancesWithMetadata(ImmutableMap.of("availability-zone", "us-east-1c", 
+     * "instance-type", "m1.small"));
+     * </code>
+     * </p>
+     * will return all instances with metadata that matches availability-zone=us-east-1c and instance-type=m1.small.
+     * 
+     * @param metadataQuery the map key/value pairs representing a query for instances matching the metadata
+     * @return the information about the matching instances
+     * @throws ConquesoCommunicationException if there's an error communicating with the Conqueso Server.
+     */
+    public ImmutableList<InstanceInfo> getInstancesWithMetadata(Map<String, String> metadataQuery) {
+        checkArgument(!checkNotNull(metadataQuery, "metadataQuery").isEmpty(), "No metadata query arguments specified");
+        return getInstancesWithMetadataImpl(metadataQuery);        
+    }
+    
+    private ImmutableList<InstanceInfo> getInstancesWithMetadataImpl(Map<String, String> metadataQuery) {        
+        String queryParams = metadataQuery.isEmpty() ? "" : buildMetadataQueryString(metadataQuery);
+        
+        TypeReference<List<InstanceInfo>> typeReference = new TypeReference<List<InstanceInfo>>() { };
+        
+        String relativeUrl = String.format("/api/instances%s", queryParams);
+        
+        String errorMessage = String.format("Failed to retrieve instances from Conqueso server: %s",
+                conquesoUrl.toExternalForm());
+        
+        return ImmutableList.copyOf(readObjectFromJson(typeReference, relativeUrl, errorMessage));
+    }
+    
+    /**
      * Retrieve information about instances of a particular role from the Conqueso Server.
      * @param roleName the role to retrieve
      * @return the information about the instances of the given role
      * @throws ConquesoCommunicationException if there's an error communicating with the Conqueso Server.
      */
-    public ImmutableList<InstanceInfo> getInstances(String roleName) {
+    public ImmutableList<InstanceInfo> getRoleInstances(String roleName) {
+        return getRoleInstancesWithMetadataImpl(roleName, Collections.<String, String>emptyMap());
+    }
+    
+    /**
+     * Retrieve information about all online instances of a particular role matching the given metadata query from 
+     * the Conqueso Server.
+     * The metadata query is expressed as key/value pairs. For example, calling this method like this:
+     * <p>
+     * <code>
+     * conquesoClient.getRoleInstancesWithMetadata("reporting-service", "availability-zone", "us-east-1c", 
+     * "instance-type", "m1.small");
+     * </code>
+     * </p>
+     * will return all instances of role reporting-service with metadata that matches availability-zone=us-east-1c and 
+     * instance-type=m1.small.
+     * 
+     * @param roleName the role to retrieve
+     * @param metadataQueryPairs the key/value pairs representing a query for instances matching the metadata
+     * @return the information about the matching instances
+     * @throws ConquesoCommunicationException if there's an error communicating with the Conqueso Server.
+     */
+    public ImmutableList<InstanceInfo> getRoleInstancesWithMetadata(String roleName, String...metadataQueryPairs) {
+        checkArgument(metadataQueryPairs.length > 0, "No metadata query pairs specified");
+        checkArgument(metadataQueryPairs.length % 2 == 0, "Odd number of arguments passed as metadata query pairs");
+                
+        return getRoleInstancesWithMetadata(roleName, toMap(metadataQueryPairs));
+    }
+    
+    /**
+     * Retrieve information about all online instances of a particular role matching the given metadata query from 
+     * the Conqueso Server.
+     * The metadata query is expressed as key/value pairs in the provided map. For example, calling this method like 
+     * this:
+     * <p>
+     * <code>
+     * conquesoClient.getRoleInstancesWithMetadata("reporting-service", ImmutableMap.of("availability-zone", 
+     * "us-east-1c", "instance-type", "m1.small"));
+     * </code>
+     * </p>
+     * will return all instances of role reporting-service with metadata that matches availability-zone=us-east-1c and 
+     * instance-type=m1.small.
+     * 
+     * @param roleName the role to retrieve
+     * @param metadataQuery the map key/value pairs representing a query for instances matching the metadata
+     * @return the information about the matching instances
+     * @throws ConquesoCommunicationException if there's an error communicating with the Conqueso Server.
+     */
+    public ImmutableList<InstanceInfo> getRoleInstancesWithMetadata(String roleName, 
+            Map<String, String> metadataQuery) {
+        checkArgument(!checkNotNull(metadataQuery, "metadataQuery").isEmpty(), "No metadata query arguments specified");
+        return getRoleInstancesWithMetadataImpl(roleName, metadataQuery);        
+    }
+    
+    private ImmutableList<InstanceInfo> getRoleInstancesWithMetadataImpl(String roleName, 
+            Map<String, String> metadataQuery) {
         checkArgument(!Strings.isNullOrEmpty(roleName), "roleName");
+        
+        String queryParams = metadataQuery.isEmpty() ? "" : buildMetadataQueryString(metadataQuery);
         
         TypeReference<List<InstanceInfo>> typeReference = new TypeReference<List<InstanceInfo>>() { };
         
-        String relativeUrl = String.format("/api/roles/%s/instances", roleName);
+        String relativeUrl = String.format("/api/roles/%s/instances%s", roleName, queryParams);
         
         String errorMessage = String.format("Failed to retrieve %s instances from Conqueso server: %s",
                 roleName, conquesoUrl.toExternalForm());
         
         return ImmutableList.copyOf(readObjectFromJson(typeReference, relativeUrl, errorMessage));
+    }
+        
+    private static ImmutableMap<String, String> toMap(String...pairs) {
+        ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+        
+        for (int i = 0; i < pairs.length; i += 2) {
+            String key = pairs[i];
+            String value = pairs[i + 1];
+            builder.put(key, value);
+        }
+        return builder.build();
+    }
+    
+    private static String buildMetadataQueryString(Map<String, String> metadataQuery) {
+        try {
+            StringBuilder sb = new StringBuilder("?");
+            for (Map.Entry<String, String> entry : metadataQuery.entrySet()) {
+                if (sb.length() > 1) {
+                    sb.append('&');
+                }
+                sb.append(URLEncoder.encode(entry.getKey(), Charsets.UTF_8.name()));
+                sb.append('=');
+                sb.append(URLEncoder.encode(entry.getValue(), Charsets.UTF_8.name()));
+            }
+            return sb.toString();
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("UTF_8 encoding isn't supported apparently. Crazy.", e);
+        }
     }
     
     @VisibleForTesting
