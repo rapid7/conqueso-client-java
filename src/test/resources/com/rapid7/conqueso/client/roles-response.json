@@ -1,0 +1,10 @@
+[
+  {
+    "name": "analytics-service",
+    "instances": 5
+  },
+  {
+    "name": "test-framework-server",
+    "instances": 1
+  }
+]

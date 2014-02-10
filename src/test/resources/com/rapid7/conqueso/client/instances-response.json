@@ -1,0 +1,30 @@
+[
+  {
+    "role": "analytics-service",
+    "ip": "10.1.100.78",
+    "pollInterval": 60000,
+    "offline": false,
+    "createdAt": "2014-02-05T17:05:39.000Z",
+    "updatedAt": "2014-02-05T18:46:48.000Z",
+    "metadata": {
+      "ami-id": "ami-133cb31d",
+      "availability-zone": "us-east-1d",
+      "local-ipv4": "10.1.100.78",
+      "instance-type": "m1.small"
+    }
+  },
+  {
+    "role": "analytics-service",
+    "ip": "10.1.100.79",
+    "pollInterval": 50000,
+    "offline": true,
+    "createdAt": "2014-03-05T17:05:39.000Z",
+    "updatedAt": "2014-03-05T18:46:48.000Z",
+    "metadata": {
+      "ami-id" : "ami-133cb31d",
+      "availability-zone" : "us-east-1d",
+      "local-ipv4": "10.1.100.79",
+      "instance-type": "m1.small"
+    }
+  }
+]
