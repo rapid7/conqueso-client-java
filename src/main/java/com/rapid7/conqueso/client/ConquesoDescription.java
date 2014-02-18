@@ -15,19 +15,22 @@
  */
 package com.rapid7.conqueso.client;
 
-import static org.junit.Assert.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import java.util.Map;
-
-public class ConquesoTestHelper {
+/**
+ * Annotation used to specify the description of a Archaius dynamic property field. This description value will be 
+ * transmitted to the Conqueso server to provide a description when viewing and editing the property value.
+ */
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ConquesoDescription {
     
-    public static void assertContainsProperty(String propName, PropertyType propType, String defaultValue, 
-            String description, Map<String, PropertyDefinition> results) {
-        assertEquals(new PropertyDefinition(propName, propType, defaultValue, description), results.get(propName));
-    }
-    
-    public static void assertExampleConfigProperties(Map<String, PropertyDefinition> results) {
-        assertEquals(ExampleConfigClass.EXPECTED_PROPERTIES, results);
-    }
+    /**
+     * Defines a description value for the associated Archaius dynamic property field.
+     */
+    String value();
 
 }

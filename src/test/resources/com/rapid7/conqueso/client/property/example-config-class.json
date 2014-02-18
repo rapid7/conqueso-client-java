@@ -2,7 +2,8 @@
    {
       "name":"string1",
       "type":"STRING",
-      "value":"foo"
+      "value":"foo",
+      "description":"This is string1"
    },
    {
       "name":"string2",
@@ -17,12 +18,14 @@
    {
       "name":"int1",
       "type":"INT",
-      "value":"42"
+      "value":"42",
+      "description":"This is int1"
    },
    {
       "name":"stringList1",
       "type":"STRING_LIST",
-      "value":"foo,bar,baz"
+      "value":"foo,bar,baz",
+      "description":"This is stringList1"
    },
    {
       "name":"stringSet1",

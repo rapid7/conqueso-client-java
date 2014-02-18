@@ -44,10 +44,10 @@ public class PropertyFileOverridePropertyDefinitionsProviderTest {
         Map<String, PropertyDefinition> results = Maps.newHashMap();
         testProvider.addPropertyDefinitions(results);
 
-        assertContainsProperty("foo", PropertyType.STRING, "bar", results);
-        assertContainsProperty("baz", PropertyType.INT, "84", results);
-        assertContainsProperty("bingo", PropertyType.STRING_LIST, "bingo", results);
-        assertContainsProperty("original", PropertyType.STRING, "still-good", results);
+        assertContainsProperty("foo", PropertyType.STRING, "bar", "foo description", results);
+        assertContainsProperty("baz", PropertyType.INT, "84", null, results);
+        assertContainsProperty("bingo", PropertyType.STRING_LIST, "bingo", null, results);
+        assertContainsProperty("original", PropertyType.STRING, "still-good", "original description", results);
     }
     
     @Test
@@ -64,10 +64,10 @@ public class PropertyFileOverridePropertyDefinitionsProviderTest {
         Map<String, PropertyDefinition> results = Maps.newHashMap();
         testProvider.addPropertyDefinitions(results);
         
-        assertContainsProperty("foo", PropertyType.STRING, "bar", results);
-        assertContainsProperty("baz", PropertyType.INT, "84", results);
-        assertContainsProperty("bingo", PropertyType.STRING_LIST, "bazingo", results);
-        assertContainsProperty("original", PropertyType.STRING, "still-good", results);
+        assertContainsProperty("foo", PropertyType.STRING, "bar", "foo description", results);
+        assertContainsProperty("baz", PropertyType.INT, "84", null, results);
+        assertContainsProperty("bingo", PropertyType.STRING_LIST, "bazingo", null, results);
+        assertContainsProperty("original", PropertyType.STRING, "still-good", "original description", results);
     }
     
     @Test
@@ -87,10 +87,10 @@ public class PropertyFileOverridePropertyDefinitionsProviderTest {
         
         System.getProperties().remove(PropertyFileOverridePropertyDefinitionsProvider.PROPERTIES_OVERRIDE_FILE_SYSTEM_PROPERTY);
 
-        assertContainsProperty("foo", PropertyType.STRING, "bar", results);
-        assertContainsProperty("baz", PropertyType.INT, "84", results);
-        assertContainsProperty("bingo", PropertyType.STRING_LIST, "bingo", results);
-        assertContainsProperty("original", PropertyType.STRING, "still-good", results);
+        assertContainsProperty("foo", PropertyType.STRING, "bar", "foo description", results);
+        assertContainsProperty("baz", PropertyType.INT, "84", null, results);
+        assertContainsProperty("bingo", PropertyType.STRING_LIST, "bingo", null, results);
+        assertContainsProperty("original", PropertyType.STRING, "still-good", "original description", results);
     }
     
     @Test
@@ -114,10 +114,10 @@ public class PropertyFileOverridePropertyDefinitionsProviderTest {
         
         System.getProperties().remove(PropertyFileOverridePropertyDefinitionsProvider.PROPERTIES_OVERRIDE_FILE_SYSTEM_PROPERTY);
 
-        assertContainsProperty("foo", PropertyType.STRING, "bar", results);
-        assertContainsProperty("baz", PropertyType.INT, "84", results);
-        assertContainsProperty("bingo", PropertyType.STRING_LIST, "bazingo", results);
-        assertContainsProperty("original", PropertyType.STRING, "still-good", results);
+        assertContainsProperty("foo", PropertyType.STRING, "bar", "foo description", results);
+        assertContainsProperty("baz", PropertyType.INT, "84", null, results);
+        assertContainsProperty("bingo", PropertyType.STRING_LIST, "bazingo", null, results);
+        assertContainsProperty("original", PropertyType.STRING, "still-good", "original description", results);
     }
     
     @Test
@@ -127,7 +127,7 @@ public class PropertyFileOverridePropertyDefinitionsProviderTest {
         PropertyFileOverridePropertyDefinitionsProvider provider = new PropertyFileOverridePropertyDefinitionsProvider(resourceUrl);
         
         List<PropertyDefinition> originalProperties = Lists.newArrayList();
-        originalProperties.add(new PropertyDefinition("foo", PropertyType.STRING, "foo"));
+        originalProperties.add(new PropertyDefinition("foo", PropertyType.STRING, "foo", "foo description"));
         
         CustomPropertyDefinitionsProvider originalProvider = new CustomPropertyDefinitionsProvider(originalProperties);
         PropertyDefinitionsProvider testProvider = new CompositePropertyDefinitionsProvider(originalProvider, provider);
@@ -136,16 +136,17 @@ public class PropertyFileOverridePropertyDefinitionsProviderTest {
         Map<String, PropertyDefinition> results = Maps.newHashMap();
         testProvider.addPropertyDefinitions(results);
 
-        assertContainsProperty("foo", PropertyType.STRING, "bar", results);
+        assertContainsProperty("foo", PropertyType.STRING, "bar", "foo description", results);
         assertFalse(results.containsKey("baz"));
     }
     
     private PropertyDefinitionsProvider compose(PropertyFileOverridePropertyDefinitionsProvider testProvider) {
         List<PropertyDefinition> originalProperties = Lists.newArrayList();
-        originalProperties.add(new PropertyDefinition("foo", PropertyType.STRING, "foo"));
-        originalProperties.add(new PropertyDefinition("baz", PropertyType.INT, "42"));
-        originalProperties.add(new PropertyDefinition("bingo", PropertyType.STRING_LIST, "bingo"));
-        originalProperties.add(new PropertyDefinition("original", PropertyType.STRING, "still-good"));
+        originalProperties.add(new PropertyDefinition("foo", PropertyType.STRING, "foo", "foo description"));
+        originalProperties.add(new PropertyDefinition("baz", PropertyType.INT, "42", null));
+        originalProperties.add(new PropertyDefinition("bingo", PropertyType.STRING_LIST, "bingo", null));
+        originalProperties.add(new PropertyDefinition("original", PropertyType.STRING, "still-good", 
+                "original description"));
         
         CustomPropertyDefinitionsProvider originalProvider = new CustomPropertyDefinitionsProvider(originalProperties);
         return new CompositePropertyDefinitionsProvider(originalProvider, testProvider);

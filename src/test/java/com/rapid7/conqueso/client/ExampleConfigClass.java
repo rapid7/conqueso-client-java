@@ -31,6 +31,7 @@ import com.netflix.config.DynamicStringSetProperty;
 @SuppressWarnings("unused")
 public class ExampleConfigClass {
     
+    @ConquesoDescription("This is string1")
     private static final DynamicStringProperty STRING1 = 
             DynamicPropertyFactory.getInstance().getStringProperty("string1", "foo");
     
@@ -40,10 +41,12 @@ public class ExampleConfigClass {
     private static final DynamicStringProperty STRING_NULL = 
             DynamicPropertyFactory.getInstance().getStringProperty("string3", null);
     
+    @ConquesoDescription("This is int1")
     private static final DynamicIntProperty INT1 = 
             DynamicPropertyFactory.getInstance().getIntProperty("int1", 42);
     
     
+    @ConquesoDescription("This is stringList1")
     private static final DynamicStringListProperty STRING_LIST1 = new DynamicStringListProperty("stringList1", 
             ImmutableList.of("foo", "bar", "baz"));
     
@@ -58,12 +61,13 @@ public class ExampleConfigClass {
     
     public static final ImmutableMap<String, PropertyDefinition> EXPECTED_PROPERTIES = 
             ImmutableMap.<String, PropertyDefinition>builder()
-            .put("string1", new PropertyDefinition("string1", PropertyType.STRING, "foo"))
-            .put("string2", new PropertyDefinition("string2", PropertyType.STRING, "bar"))
-            .put("string3", new PropertyDefinition("string3", PropertyType.STRING, ""))
-            .put("int1", new PropertyDefinition("int1", PropertyType.INT, "42"))
-            .put("stringList1", new PropertyDefinition("stringList1", PropertyType.STRING_LIST, "foo,bar,baz"))
-            .put("stringSet1", new PropertyDefinition("stringSet1", PropertyType.STRING_SET, "baz,foo,bar"))
-            .put("stringMap1", new PropertyDefinition("stringMap1", PropertyType.STRING_MAP, "k3=v3,k1=v1,k2=v2"))
+            .put("string1", new PropertyDefinition("string1", PropertyType.STRING, "foo", "This is string1"))
+            .put("string2", new PropertyDefinition("string2", PropertyType.STRING, "bar", null))
+            .put("string3", new PropertyDefinition("string3", PropertyType.STRING, "", null))
+            .put("int1", new PropertyDefinition("int1", PropertyType.INT, "42", "This is int1"))
+            .put("stringList1", new PropertyDefinition("stringList1", PropertyType.STRING_LIST, "foo,bar,baz", 
+                    "This is stringList1"))
+            .put("stringSet1", new PropertyDefinition("stringSet1", PropertyType.STRING_SET, "baz,foo,bar", null))
+            .put("stringMap1", new PropertyDefinition("stringMap1", PropertyType.STRING_MAP, "k3=v3,k1=v1,k2=v2", null))
             .build();
 }

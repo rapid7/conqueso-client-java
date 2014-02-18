@@ -34,15 +34,18 @@ public class PropertyDefinition {
     private final String name;
     private final PropertyType type;
     private final String value;
+    private final String description;
     
     @JsonCreator
     public PropertyDefinition(@JsonProperty("name") String name, 
             @JsonProperty("type") PropertyType type, 
-            @JsonProperty("value") @Nullable String value) {
+            @JsonProperty("value") @Nullable String value,
+            @JsonProperty("description") @Nullable String description) {
         checkArgument(!Strings.isNullOrEmpty(name), "name");
         this.name = name;
         this.type = checkNotNull(type, "type");
         this.value = Strings.nullToEmpty(value);
+        this.description = Strings.nullToEmpty(description);
     }
 
     public String getName() {
@@ -56,10 +59,14 @@ public class PropertyDefinition {
     public String getValue() {
         return value;
     }
+    
+    public String getDescription() {
+        return description;
+    }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(name, type, value);
+        return Objects.hashCode(name, type, value, description);
     }
 
     @Override
@@ -76,11 +83,13 @@ public class PropertyDefinition {
         PropertyDefinition other = (PropertyDefinition) obj;
         return Objects.equal(name, other.name) &&
                 Objects.equal(type, other.type) &&
-                Objects.equal(value, other.value);
+                Objects.equal(value, other.value) &&
+                Objects.equal(description, other.description);
     }
 
     @Override
     public String toString() {
-        return "PropertyDefinition [name=" + name + ", type=" + type + ", value=" + value + "]";
+        return "PropertyDefinition [name=" + name + ", type=" + type + ", value=" + value + 
+                ", description=" + description + "]";
     }
 }
