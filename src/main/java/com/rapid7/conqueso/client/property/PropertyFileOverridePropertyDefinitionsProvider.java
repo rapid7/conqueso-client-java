@@ -73,7 +73,7 @@ public class PropertyFileOverridePropertyDefinitionsProvider extends AbstractUrl
                 
                 PropertyDefinition existingDefinition = targetPropertyDefinitionMap.get(propertyKey);
                 PropertyDefinition mergedDefinition = new PropertyDefinition(propertyKey, 
-                        existingDefinition.getType(), propertyValue);
+                        existingDefinition.getType(), propertyValue, existingDefinition.getDescription());
                 
                 targetPropertyDefinitionMap.put(propertyKey, mergedDefinition);
             } else {

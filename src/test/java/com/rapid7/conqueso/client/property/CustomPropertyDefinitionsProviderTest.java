@@ -29,8 +29,8 @@ public class CustomPropertyDefinitionsProviderTest {
     
     @Test
     public void addPropertyDefinitions() {
-        PropertyDefinition prop1 = new PropertyDefinition("foo", PropertyType.STRING, "bar");
-        PropertyDefinition prop2 = new PropertyDefinition("the-answer", PropertyType.INT, "42");
+        PropertyDefinition prop1 = new PropertyDefinition("foo", PropertyType.STRING, "bar", null);
+        PropertyDefinition prop2 = new PropertyDefinition("the-answer", PropertyType.INT, "42", null);
         
         CustomPropertyDefinitionsProvider provider = new CustomPropertyDefinitionsProvider(prop1, prop2);
         Map<String, PropertyDefinition> results = Maps.newHashMap();

@@ -147,6 +147,7 @@ will be included in the set of properties sent.
 ```java
 public class ExampleConfigClass {
     
+    @ConquesoDescription("This is the string1 property")
     private static final DynamicStringProperty STRING1 = 
             DynamicPropertyFactory.getInstance().getStringProperty("string1", "foo");
     
@@ -158,6 +159,7 @@ public class ExampleConfigClass {
 ...
 }
 ```
+If you add the ```@ConquesoDescription``` annotation to your Archaius property fields the value will be used to describe the meaning of this property when viewing and editing it in the Conqueso server interface.
 
 ##### Scanning for Marker Annotations
 You can tell the ConquesoClient to scan your application's classpath for classes containing marker annotations on the type. The marker annotation can be a custom type you specify, or the default `@ConquesoConfig` annotation. 
@@ -177,6 +179,7 @@ ConquesoClient.initializer()
 @ConquesoConfig
 public class ExampleConfigClass {
     
+    @ConquesoDescription("This is the string1 property")
     private static final DynamicStringProperty STRING1 = 
             DynamicPropertyFactory.getInstance().getStringProperty("string1", "foo");
     
@@ -202,7 +205,8 @@ The format of the JSON file is as follows:
     {
        "name":"exampleString",
        "type":"STRING",
-       "value":"foo"
+       "value":"foo",
+       "description":"This is the exampleString property"
     },
     {
        "name":"exampleStringList",
@@ -212,6 +216,7 @@ The format of the JSON file is as follows:
 ]
 ```
 The values for the type field are defined in the [PropertyType](https://github.com/rapid7/conqueso-client-java/blob/master/src/main/java/com/rapid7/conqueso/client/PropertyType.java) enum in the conqueso-client-java artifact. The value field provides the default value for the property (but not necessarily the value returned by the Conqueso server if modified).
+The value of the optional description field will be used to describe the meaning of the property when viewing and editing it in the Conqueso server interface.
 
 ##### Property Default Value Overrides
 The default values of properties are read from the object declarations when introspecting configuration classes and from the JSON file definition as described above. These default values can also be overridden using external Java Properties files, specified by a system property:

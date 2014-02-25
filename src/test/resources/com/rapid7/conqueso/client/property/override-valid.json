@@ -2,7 +2,8 @@
    {
       "name":"string1",
       "type":"STRING",
-      "value":"foobar"
+      "value":"foobar",
+      "description":"This is a different string1"
    },
    {
       "name":"stringList1",

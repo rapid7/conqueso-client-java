@@ -7,7 +7,8 @@
    {
       "name":"float1",
       "type":"FLOAT",
-      "value":"3.14"
+      "value":"3.14",
+      "description":"This is float1"
    },
    {
       "name":"double1",
@@ -22,6 +23,7 @@
    {
       "name":"long1",
       "type":"LONG",
-      "value":"9876543210"
+      "value":"9876543210",
+      "description":"This is long1"
    }  
 ]

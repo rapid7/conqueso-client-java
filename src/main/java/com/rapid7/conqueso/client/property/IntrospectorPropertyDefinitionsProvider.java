@@ -29,12 +29,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.netflix.config.DynamicListProperty;
 import com.netflix.config.DynamicMapProperty;
 import com.netflix.config.Property;
+import com.rapid7.conqueso.client.ConquesoDescription;
 import com.rapid7.conqueso.client.PropertyDefinition;
 import com.rapid7.conqueso.client.PropertyDefinitionsProvider;
 import com.rapid7.conqueso.client.PropertyType;
@@ -132,11 +134,12 @@ public class IntrospectorPropertyDefinitionsProvider implements PropertyDefiniti
         
         Object defaultValue = getDefaultValue(property);            
         PropertyType type = getPropertyType(propertyField, property);
+        String description = getPropertyDescription(propertyField);
         
         targetPropertyDefinitionMap.put(propName, new PropertyDefinition(propName, type, 
-                defaultValue == null ? "" : defaultValue.toString()));
+                Objects.firstNonNull(defaultValue, "").toString(), description));
     }
-    
+
     private Object getDefaultValue(Property<?> property) {
         Object defaultValue = property.getDefaultValue();
         if (defaultValue == null) {
@@ -176,5 +179,10 @@ public class IntrospectorPropertyDefinitionsProvider implements PropertyDefiniti
                     propertyField.getDeclaringClass().getName()));
         }
         return type;
+    }
+    
+    private String getPropertyDescription(Field propertyField) {
+        ConquesoDescription descriptionAnnotation = propertyField.getAnnotation(ConquesoDescription.class);
+        return descriptionAnnotation == null ? null : descriptionAnnotation.value();
     }
 }

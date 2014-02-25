@@ -42,12 +42,14 @@ public class IntrospectorPropertyDefinitionsProviderTest {
     @Test
     public void alternateDelimiter() {
         IntrospectorPropertyDefinitionsProvider introspector = 
-                new IntrospectorPropertyDefinitionsProvider(Collections.<Class<?>>singleton(ExampleConfigClass.class), ";;");
+                new IntrospectorPropertyDefinitionsProvider(
+                        Collections.<Class<?>>singleton(ExampleConfigClass.class), ";;");
         Map<String, PropertyDefinition> results = Maps.newHashMap();
         introspector.addPropertyDefinitions(results);
         
-        assertContainsProperty("stringList1", PropertyType.STRING_LIST, "foo;;bar;;baz", results);
-        assertContainsProperty("stringSet1",  PropertyType.STRING_SET, "baz;;foo;;bar", results);
-        assertContainsProperty("stringMap1", PropertyType.STRING_MAP, "k3=v3;;k1=v1;;k2=v2", results);
+        assertContainsProperty("stringList1", PropertyType.STRING_LIST, "foo;;bar;;baz", 
+                "This is stringList1", results);
+        assertContainsProperty("stringSet1",  PropertyType.STRING_SET, "baz;;foo;;bar", null, results);
+        assertContainsProperty("stringMap1", PropertyType.STRING_MAP, "k3=v3;;k1=v1;;k2=v2", null, results);
     }
 }

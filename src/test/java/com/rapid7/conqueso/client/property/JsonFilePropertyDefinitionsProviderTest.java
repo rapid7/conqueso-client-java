@@ -51,8 +51,8 @@ public class JsonFilePropertyDefinitionsProviderTest {
         Map<String, PropertyDefinition> results = Maps.newHashMap();
         provider.addPropertyDefinitions(results);
         
-        assertContainsProperty("float1", PropertyType.FLOAT, "3.14", results);
-        assertContainsProperty("boolean1", PropertyType.BOOLEAN, "true", results);
+        assertContainsProperty("float1", PropertyType.FLOAT, "3.14", "This is float1", results);
+        assertContainsProperty("boolean1", PropertyType.BOOLEAN, "true", null, results);
     }
     
     @Test
@@ -85,8 +85,8 @@ public class JsonFilePropertyDefinitionsProviderTest {
         
         System.getProperties().remove(JsonFilePropertyDefinitionsProvider.JSON_FILE_SYSTEM_PROPERTY);
         
-        assertContainsProperty("long1", PropertyType.LONG, "9876543210", results);
-        assertContainsProperty("double1", PropertyType.DOUBLE, "6.28", results);
+        assertContainsProperty("long1", PropertyType.LONG, "9876543210", "This is long1", results);
+        assertContainsProperty("double1", PropertyType.DOUBLE, "6.28", null, results);
     }
     
     @Test
@@ -99,8 +99,8 @@ public class JsonFilePropertyDefinitionsProviderTest {
         Map<String, PropertyDefinition> results = Maps.newHashMap();
         provider.addPropertyDefinitions(results);
         
-        assertContainsProperty("string1", PropertyType.STRING, "foobar", results);
-        assertContainsProperty("stringList1", PropertyType.STRING_LIST, "foo,bar,baz,bingo", results);
+        assertContainsProperty("string1", PropertyType.STRING, "foobar", "This is a different string1", results);
+        assertContainsProperty("stringList1", PropertyType.STRING_LIST, "foo,bar,baz,bingo", null, results);
     }
     
     @Test(expected=IllegalArgumentException.class)
