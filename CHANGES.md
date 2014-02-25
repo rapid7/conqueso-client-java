@@ -2,6 +2,16 @@ conqueso-client-java Change History
 ===================================
 This file documents the change history and release notes for the conqueso-client-java artifact.
 
+### Release 0.5.2
+February 25, 2014
+
+* Add ability to specify and transmit property descriptions to the Conqueso server
+
+#### 0.5.2 API Changes
+* Added [@ConquesoDescription](https://github.com/rapid7/conqueso-client-java#introspection-of-specific-configuration-classes) annotation for specifying descriptions on Archaius property fields.
+* Added description attribute to [JSON Property Definitions](https://github.com/rapid7/conqueso-client-java#json-property-definitions) file format.
+
+
 ### Release 0.5.1
 February 11, 2014
 
