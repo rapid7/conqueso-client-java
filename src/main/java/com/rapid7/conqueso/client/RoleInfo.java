@@ -15,9 +15,8 @@
  */
 package com.rapid7.conqueso.client;
 
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
-
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 
 /**
@@ -29,7 +28,7 @@ public class RoleInfo {
     private final int instances;
     
     @JsonCreator
-    public RoleInfo(@JsonProperty("name") String name, 
+    public RoleInfo(@JsonProperty("name") String name,
             @JsonProperty("instances") int instances) {
         
         this.name = name;

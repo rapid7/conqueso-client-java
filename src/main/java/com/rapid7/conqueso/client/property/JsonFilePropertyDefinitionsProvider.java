@@ -15,14 +15,14 @@
  */
 package com.rapid7.conqueso.client.property;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.Reader;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,7 +77,7 @@ public class JsonFilePropertyDefinitionsProvider extends AbstractUrlBasedPropert
     @Override
     protected List<PropertyDefinition> readModelFromReader(Reader reader) throws IOException {
         ObjectMapper parser = new ObjectMapper();
-        List<PropertyDefinition> results = parser.readValue(reader, 
+        List<PropertyDefinition> results = parser.readValue(reader,
                 new TypeReference<List<PropertyDefinition>>() { });
         return results;
     }

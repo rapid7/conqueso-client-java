@@ -15,6 +15,7 @@
  */
 package com.rapid7.conqueso.client.property;
 
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import static com.google.common.base.Preconditions.*;
 
 import java.lang.reflect.Field;
@@ -24,7 +25,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import org.codehaus.jackson.map.util.ClassUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

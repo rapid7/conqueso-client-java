@@ -15,6 +15,9 @@
  */
 package com.rapid7.conqueso.client;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import static com.google.common.base.Preconditions.*;
 
 import java.io.IOException;
@@ -38,9 +41,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.codehaus.jackson.map.DeserializationConfig;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -611,7 +611,7 @@ public class ConquesoClient {
     ConquesoClient(URL conquesoUrl) {
         this.conquesoUrl = conquesoUrl;
         this.objectMapper = new ObjectMapper();
-        this.objectMapper.disable(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES);
+        this.objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         // Prevent construction outside of Initializer
     }
     
