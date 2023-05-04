@@ -15,12 +15,11 @@
  */
 package com.rapid7.conqueso.client;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import static com.google.common.base.Preconditions.*;
 
 import javax.annotation.Nullable;
-
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Strings;
@@ -37,7 +36,7 @@ public class PropertyDefinition {
     private final String description;
     
     @JsonCreator
-    public PropertyDefinition(@JsonProperty("name") String name, 
+    public PropertyDefinition(@JsonProperty("name") String name,
             @JsonProperty("type") PropertyType type, 
             @JsonProperty("value") @Nullable String value,
             @JsonProperty("description") @Nullable String description) {

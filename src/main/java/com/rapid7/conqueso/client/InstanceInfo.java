@@ -15,10 +15,9 @@
  */
 package com.rapid7.conqueso.client;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Map;
-
-import org.codehaus.jackson.annotate.JsonCreator;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
@@ -38,7 +37,7 @@ public class InstanceInfo {
     
     @JsonCreator
     public InstanceInfo(
-            @JsonProperty("ip") String ipAddress, 
+            @JsonProperty("ip") String ipAddress,
             @JsonProperty("role") String role, 
             @JsonProperty("pollInterval") long pollIntervalMillis, 
             @JsonProperty("offline") boolean offline, 
